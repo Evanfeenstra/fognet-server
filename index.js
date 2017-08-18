@@ -7,6 +7,6 @@ const app = express()
 
 app.use(serve.auth)
 
-app.listen(3000, function() {
-  console.log("Listening on port 3000!")
+app.listen(9000, function() {
+  console.log("Listening on port 9000!")
 })
