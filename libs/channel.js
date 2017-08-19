@@ -59,13 +59,6 @@ function processTransfer(id, item, bundles, callback) {
   });
 }
 
-function finishMultisig(seed, flash, digest, myDigests) {
-  const myDigest = multisig.getDigest(seed, flash.state.index++, flash.state.security);
-  myDigests.push(myDigest);
-  const digests = [digests].concat(myDigests);
-  return multisig.composeAddress(multisig.initializeAddress([digest, myDigest]));
-}
-
 module.exports = {
   'getSubseed'     : getSubseed,
   'getDigest'      : getDigest,

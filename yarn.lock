@@ -196,13 +196,14 @@ inherits@2.0.3:
 
 "iota.crypto.js@git+https://github.com/iotaledger/iota.crypto.js.git":
   version "0.4.1"
-  resolved "git+https://github.com/iotaledger/iota.crypto.js.git#ff684a31b96a4599d34b7b0e70d2620b01ecd6da"
+  resolved "git+https://github.com/iotaledger/iota.crypto.js.git#d42a3b167b969d33bb57611af621a71a104a018c"
   dependencies:
     crypto-js "^3.1.9-1"
 
 "iota.crypto.js@github:iotaledger/iota.crypto.js":
   version "0.4.1"
-  resolved "https://codeload.github.com/iotaledger/iota.crypto.js/tar.gz/ff684a31b96a4599d34b7b0e70d2620b01ecd6da"
+  uid d42a3b167b969d33bb57611af621a71a104a018c
+  resolved "https://codeload.github.com/iotaledger/iota.crypto.js/tar.gz/d42a3b167b969d33bb57611af621a71a104a018c"
   dependencies:
     crypto-js "^3.1.9-1"
 
@@ -229,8 +230,8 @@ methods@~1.1.2:
   resolved "https://registry.yarnpkg.com/methods/-/methods-1.1.2.tgz#5529a4d67654134edcc5266656835b0f851afcee"
 
 micro@^8.0.2:
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/micro/-/micro-8.0.2.tgz#e49127185c8d1a61146f0555603bef2a7fc47b03"
+  version "8.0.3"
+  resolved "https://registry.yarnpkg.com/micro/-/micro-8.0.3.tgz#b502634bcae1c01db2914162268c04a687949440"
   dependencies:
     media-typer "0.3.0"
     mri "1.1.0"

@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const storage = require("./libs/storage");
 const serve = require("./libs/serve");
 const Flash = require("iota.flash.js");
+const multisig = Flash.multisig;
 const channel = require("./libs/channel");
 var cors = require('cors')
 
@@ -36,14 +37,15 @@ app.post('/register', (req, res, next) => {
         'stakes': [1, 0, 0],
       });
 
-      let myDigests = [];
-     
-      flash.state.remainderAddress = channel.finishMultisig(seed, flash, digests.shift(), myDigests);
-      let multisigs = digests.map(digest => channel.finishMultisig(seed, flash, digest, myDigests));
-      for(let i = 1; i < multisigs.length; i++) {
-        multisigs[i-1].children.push(multisigs[i]);
+      let myDigests = digests.map(() => multisig.getDigest(seed, flash.state.index++, flash.state.security));
+      { // compose multisigs, write to remainderAddress and root
+        let multisigs = digests.map((digest, i) => multisig.composeAddress([digest, myDigests[i]]));
+        flash.state.remainderAddress = multisigs.shift();
+        for(let i = 1; i < multisigs.length; i++) {
+          multisigs[i-1].children.push(multisigs[i]);
+        }
+        flash.state.root = multisigs.shift();
       }
-      flash.state.root = multisigs[0];
       storage.set('channel_' + req.body.id, {
         'seed': seed, 
         'state': flash
