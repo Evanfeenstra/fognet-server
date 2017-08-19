@@ -8,7 +8,9 @@ const transfer = Flash.transfer;
 
 function getSubseed(seed, callback) {
   storage.incr('index', (err, index) => {
-    callback(err, err ? null : seed);
+    const subseedTrits = subseed(converter.trits(seed), index);
+    //console.log(subseedTrits);
+    callback(err, err ? null : converter.trytes(subseedTrits));
   });
 }
 
@@ -57,10 +59,11 @@ function processTransfer(id, item, bundles, callback) {
   });
 }
 
-function finishMultisig(flash, digest, myDigests, seed) {
+function finishMultisig(seed, flash, digest, myDigests) {
   const myDigest = multisig.getDigest(seed, flash.state.index++, flash.state.security);
   myDigests.push(myDigest);
-  return multisig.finalizeAddress(multisig.initializeAddress(myDigest.index, [digest, myDigest]));
+  const digests = [digests].concat(myDigests);
+  return multisig.composeAddress(multisig.initializeAddress([digest, myDigest]));
 }
 
 module.exports = {

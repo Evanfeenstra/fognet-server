@@ -37,8 +37,9 @@ app.post('/register', (req, res, next) => {
       });
 
       let myDigests = [];
-      flash.state.remainderAddress = channel.finishMultisig(flash, digests.unshift(), myDigests, seed);
-      let multisigs = digests.map(digest => channel.finishMultisig(flash, digest, myDigests));
+     
+      flash.state.remainderAddress = channel.finishMultisig(seed, flash, digests.shift(), myDigests);
+      let multisigs = digests.map(digest => channel.finishMultisig(seed, flash, digest, myDigests));
       for(let i = 1; i < multisigs.length; i++) {
         multisigs[i-1].children.push(multisigs[i]);
       }
