@@ -1,7 +1,7 @@
 const queryString = require("query-string")
 const parseurl = require("parseurl")
 
-exports.auth = (req, res) => {
+module.exports = (req, res) => {
   // Get url info
   const url = parseurl(req)
   const queries = queryString.parse(url.query)
