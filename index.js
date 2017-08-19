@@ -14,18 +14,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/register', (req, res, next) => { 
   storage.get('channel_' + req.body.id, (err, state) => {
-    if (!state) {
+    if (state) {
       res.json({'error': 'Channel already exists'});
       return;
     }
-    state = new flash({
-      'index': 0,
-      'security': 2,
-      'deposit': [0, 0, 0],
-      'stakes': [1, 0, 0],
-      'depth': 4,
-      'remainderAddress': remainderAddress
-    });
     channel.getSubseed(SEED, (err, seed) => {
       if (err) {
         res.send(500).end();
@@ -36,6 +28,14 @@ app.post('/register', (req, res, next) => {
         channel.getDigest(seed, 0, 1)
       ];
       //const remainderAddress = channel.getAddress(digests);
+      state = new flash({
+        'index': 0,
+        'security': 2,
+        'deposit': [0, 0, 0],
+        'stakes': [1, 0, 0],
+        'depth': 4,
+        'remainderAddress': remainderAddress
+      });
       storage.set('channel_' + req.body.id, {
         'seed': seed, 
         'state': state
