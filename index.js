@@ -35,8 +35,9 @@ app.post('/register', (req, res, next) => {
         'deposit': [0, 0, 0],
         'stakes': [1, 0, 0],
       });
+
       let myDigests = [];
-      flash.state.remainderAddress = channel.finishMultisig(flash, digests.unshift(), myDigests);
+      flash.state.remainderAddress = channel.finishMultisig(flash, digests.unshift(), myDigests, seed);
       let multisigs = digests.map(digest => channel.finishMultisig(flash, digest, myDigests));
       for(let i = 1; i < multisigs.length; i++) {
         multisigs[i-1].children.push(multisigs[i]);

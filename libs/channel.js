@@ -57,7 +57,7 @@ function processTransfer(id, item, bundles, callback) {
   });
 }
 
-function finishMultisig(flash, digest, myDigests) {
+function finishMultisig(flash, digest, myDigests, seed) {
   const myDigest = multisig.getDigest(seed, flash.state.index++, flash.state.security);
   myDigests.push(myDigest);
   return multisig.finalizeAddress(multisig.initializeAddress(myDigest.index, [digest, myDigest]));
