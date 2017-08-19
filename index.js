@@ -49,7 +49,7 @@ app.post('/register', (req, res, next) => {
       storage.set('channel_' + req.body.id, {
         'seed': seed, 
         'state': flash
-      }, (err, res) =>{
+      }, (err) =>{
         if (err) {
           res.send(500).end();
         }
