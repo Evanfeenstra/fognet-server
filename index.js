@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require('body-parser');
 const storage = require("./libs/store");
 const serve = require("./libs/serve");
-const flash = require("iota.flash.js");
+const Flash = require("iota.flash.js");
 const channel = require("./libs/channel");
 
 const SEED = 'QWERTY9';
@@ -23,22 +23,24 @@ app.post('/register', (req, res, next) => {
         res.send(500).end();
         return;
       }
-      const didgests = [
-        req.body.digests,
-        channel.getDigest(seed, 0, 1)
-      ];
-      //const remainderAddress = channel.getAddress(digests);
-      state = new flash({
+      const digests = req.body.digests;
+
+      flash = new Flash({
         'index': 0,
         'security': 2,
         'deposit': [0, 0, 0],
         'stakes': [1, 0, 0],
-        'depth': 4,
-        'remainderAddress': remainderAddress
       });
+      let myDigests = [];
+      flash.state.remainderAddress = channel.finishMultisig(flash, digests.unshift(), myDigests);
+      let multisigs = digests.map(digest => channel.finishMultisig(flash, digest, myDigests));
+      for(let i = 1; i < multisigs.length; i++) {
+        multisigs[i-1].children.push(multisigs[i]);
+      }
+      flash.state.root = multisigs[0];
       storage.set('channel_' + req.body.id, {
         'seed': seed, 
-        'state': state
+        'state': flash
       }, (err, res) =>{
         if (err) {
           res.send(500).end();
@@ -47,6 +49,9 @@ app.post('/register', (req, res, next) => {
           //
           // TODO: respond to client and establish channel        
           //
+          res.json({
+            digests: myDigests,
+          });
         }
       });
     });

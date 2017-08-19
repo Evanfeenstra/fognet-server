@@ -1,8 +1,8 @@
 const subseed = require("iota.crypto.js").signing.subseed;
 const storage = require("./libs/store"); 
-const flash = require("iota.flash.js");
-const multisig = flash.multisig;
-const transfer = flash.transfer;
+const Flash = require("iota.flash.js");
+const multisig = Flash.multisig;
+const transfer = Flash.transfer;
 
 
 function getSubseed(seed, callback) {
@@ -21,7 +21,7 @@ function getNewDigest(id, callback) {
       callback(err);
     }
     else {
-      callbakc(null, multisig.getDigest(channel.seed, channel.state.index, channel.state.security));
+      callback(null, multisig.getDigest(channel.seed, channel.state.index, channel.state.security));
     }
   });
 }
@@ -56,11 +56,18 @@ function processTransfer(id, item, bundles, callback) {
   });
 }
 
+function finishMultisig(flash, digest, myDigests) {
+  const myDigest = multisig.getDigest(seed, flash.state.index++, flash.state.security);
+  myDigests.push(myDigest);
+  return multisig.finalizeAddress(multisig.initializeAddress(myDigest.index, [digest, myDigest]));
+}
+
 module.exports = {
   'getSubseed'     : getSubseed,
   'getDigest'      : getDigest,
   'getNewDigest'   : getNewDigest,
   'getAddress'     : getAddress,
-  'processTransfer': processTransfer
+  'processTransfer': processTransfer,
+  'finishMultisig' : finishMultisig
 }
 
