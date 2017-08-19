@@ -64,7 +64,6 @@ module.exports = {
   'getDigest'      : getDigest,
   'getNewDigest'   : getNewDigest,
   'getAddress'     : getAddress,
-  'processTransfer': processTransfer,
-  'finishMultisig' : finishMultisig
+  'processTransfer': processTransfer
 }
 
