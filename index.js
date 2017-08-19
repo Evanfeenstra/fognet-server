@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require('body-parser');
-const storage = require("./libs/store");
+const storage = require("./libs/storage");
 const serve = require("./libs/serve");
 const Flash = require("iota.flash.js");
 const channel = require("./libs/channel");
@@ -20,7 +20,7 @@ app.post('/register', (req, res, next) => {
     }
     channel.getSubseed(SEED, (err, seed) => {
       if (err) {
-        res.send(500).end();
+        res.send(500).json({'error': 'Internal server error'});
         return;
       }
       const digests = req.body.digests;

@@ -1,5 +1,6 @@
 const subseed = require("iota.crypto.js").signing.subseed;
-const storage = require("./libs/store"); 
+const converter = require("iota.crypto.js").converter;
+const storage = require("./storage"); 
 const Flash = require("iota.flash.js");
 const multisig = Flash.multisig;
 const transfer = Flash.transfer;
@@ -7,11 +8,11 @@ const transfer = Flash.transfer;
 
 function getSubseed(seed, callback) {
   storage.incr('index', (err, index) => {
-    callback(err, err ? null : subseed(seed, index));
+    callback(err, err ? null : subseed(seed, converter.fromValue(index)));
   });
 }
 
-function getDiget(seed, index, security) {
+function getDigest(seed, index, security) {
   return multisig.getDigest(seed, index, security);
 }
 
