@@ -4,15 +4,19 @@ const storage = require("./libs/storage");
 const serve = require("./libs/serve");
 const Flash = require("iota.flash.js");
 const channel = require("./libs/channel");
+var cors = require('cors')
 
 const SEED = 'DDVZVZ9QJPUGMDAKGPTEUBOS9AWWVWF99MCKNIXALMKJRBGSQMXOVBRKHSJNOVMBZJRRRMVNXJCKPXPXJ';
 
 const app = express();
 
+app.use(cors())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/register', (req, res, next) => {console.log(req)
+app.post('/register', (req, res, next) => { 
+  console.log(req.body)
+  
   storage.get('channel_' + req.body.id, (err, state) => {
     if (state) {
       res.json({'error': 'Channel already exists'});
