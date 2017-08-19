@@ -1,21 +1,18 @@
-const serve = require("./libs/serve")
-const express = require("express")
+const express = require("express");
 const bodyParser = require('body-parser');
-const channel = require("./libs/channel");
 const storage = require("./libs/store");
 const serve = require("./libs/serve");
+const flash = require("iota.flash.js");
+const channel = require("./libs/channel");
 
 const SEED = 'QWERTY9';
 
-const app = express()
+const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/register', (req, res, next) => {
-  const didgests = req.body.digests;
-  
-  const remainderAddress = composeAddress();
+app.post('/register', (req, res, next) => { 
   storage.get('channel_' + req.body.id, (err, state) => {
     if (!state) {
       res.json({'error': 'Channel already exists'});
@@ -34,6 +31,11 @@ app.post('/register', (req, res, next) => {
         res.send(500).end();
         return;
       }
+      const didgests = [
+        req.body.digests,
+        channel.getDigest(seed, 0, 1)
+      ];
+      //const remainderAddress = getNewAddress(digests);
       storage.set('channel_' + req.body.id, {
         'seed': seed, 
         'state': state
@@ -48,7 +50,6 @@ app.post('/register', (req, res, next) => {
         }
       });
     });
-
   });
 });
 
