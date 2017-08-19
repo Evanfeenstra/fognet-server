@@ -26,7 +26,7 @@ function getNewDigest(id, callback) {
   });
 }
 
-function getNewAddress(digests) {
+function getAddress(digests) {
   return multisig.composeAddress(digests);
 }
 
@@ -58,8 +58,9 @@ function processTransfer(id, item, bundles, callback) {
 
 module.exports = {
   'getSubseed'     : getSubseed,
+  'getDigest'      : getDigest,
   'getNewDigest'   : getNewDigest,
-  'getNewAddress'  : getNewAddress,
+  'getAddress'     : getAddress,
   'processTransfer': processTransfer
 }
 

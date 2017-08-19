@@ -35,7 +35,7 @@ app.post('/register', (req, res, next) => {
         req.body.digests,
         channel.getDigest(seed, 0, 1)
       ];
-      //const remainderAddress = getNewAddress(digests);
+      //const remainderAddress = channel.getAddress(digests);
       storage.set('channel_' + req.body.id, {
         'seed': seed, 
         'state': state
@@ -61,7 +61,7 @@ app.post('/address', (req, res, next) => {
     }
     else {
       res.json({
-        'address': channel.getNewAddress([clientDigest, digest])
+        'address': channel.getAddress([clientDigest, digest])
       });
     }
   });

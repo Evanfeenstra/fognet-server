@@ -7,13 +7,13 @@ function get(key, callback) {
   });
 }
 
-function set(key, obj) {
+function set(key, obj, callback) {
   client.set(key, JSON.stringify(obj), (err, res) => {
     callback(err, res);
   });
 }
 
-function incr(key) {
+function incr(key, callback) {
   client.incr(key, (err, res) => {
     callback(err, res);
   });
