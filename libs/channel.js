@@ -8,7 +8,7 @@ const transfer = Flash.transfer;
 
 function getSubseed(seed, callback) {
   storage.incr('index', (err, index) => {
-    callback(err, err ? null : subseed(seed, converter.fromValue(index)));
+    callback(err, err ? null : seed);
   });
 }
 

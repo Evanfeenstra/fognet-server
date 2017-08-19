@@ -5,14 +5,14 @@ const serve = require("./libs/serve");
 const Flash = require("iota.flash.js");
 const channel = require("./libs/channel");
 
-const SEED = 'QWERTY9';
+const SEED = 'DDVZVZ9QJPUGMDAKGPTEUBOS9AWWVWF99MCKNIXALMKJRBGSQMXOVBRKHSJNOVMBZJRRRMVNXJCKPXPXJ';
 
 const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/register', (req, res, next) => { 
+app.post('/register', (req, res, next) => {console.log(req)
   storage.get('channel_' + req.body.id, (err, state) => {
     if (state) {
       res.json({'error': 'Channel already exists'});
