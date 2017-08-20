@@ -209,7 +209,7 @@ inherits@2.0.3:
 
 "iota.flash.js@git+https://github.com/iotaledger/iota.flash.js.git":
   version "0.0.1"
-  resolved "git+https://github.com/iotaledger/iota.flash.js.git#e8b17ecb68ed3ffce56ab5919d7962a927880a8a"
+  resolved "git+https://github.com/iotaledger/iota.flash.js.git#f17a32fc0a59e2b3a8a77bb9537bf04e79eebf2f"
   dependencies:
     iota.crypto.js "github:iotaledger/iota.crypto.js"
 

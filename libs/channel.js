@@ -40,7 +40,12 @@ function processTransfer(id, item, bundles, callback) {
       return;
     }
     try {
-      const txs = transfer.getDiff(channel.flash.state, bundles).filter(tx => tx.value > 0);
+      const state = channel.flash.state;
+      const txs = transfer.getDiff(
+        state.root, 
+        state.remainder, 
+        state.history, 
+        bundles).filter(tx => tx.value > 0);
       const addressesToCheck = [];
       for(let i = 0; i < 0; i++ ) {
         if (tx.value >= item.value) {
@@ -56,8 +61,16 @@ function processTransfer(id, item, bundles, callback) {
           callback(null, false);
           return;
         }
-        const signedBundles = transfer.sign(channel.seed, channel.flash.state.index, channel.flash.state.security, bundles);
-        transfer.applyTransfer(channel.flash, signedBundles);
+        const flashState = channel.flash.state;
+        const signedBundles = transfer.sign(channel.flash.state.root, channel.seed, bundles);
+        transfer.applyTransfers(
+          flashState.root, 
+          flashState.deposit, 
+          flashState.stakes, 
+          flashState.outputs, 
+          flashState.remainder, 
+          flashState.transfers, 
+          signedBundles);
         storage.set('channel_' + id, channel, (err, res) => {
           if (err) {
             callbakc(err);
