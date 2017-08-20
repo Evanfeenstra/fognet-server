@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const storage = require("./libs/storage");
 const serve = require("./libs/serve");
 const Flash = require("iota.flash.js");
+const multisig = Flash.multisig;
 const channel = require("./libs/channel");
 const cors = require('cors')
 const crypto = require('crypto');
