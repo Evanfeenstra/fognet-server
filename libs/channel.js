@@ -24,7 +24,7 @@ function getNewDigest(id, callback) {
       callback(err);
     }
     else {
-      callback(null, multisig.getDigest(channel.seed, channel.state.index, channel.state.security));
+      callback(null, multisig.getDigest(channel.seed, channel.flash.index, channel.flash.security));
     }
   });
 }
@@ -40,7 +40,7 @@ function processTransfer(id, item, bundles, callback) {
       return;
     }
     try {
-      const txs = transfer.getDiff(state, bundles).filter(tx => tx.value > 0);
+      const txs = transfer.getDiff(channel.flash.state, bundles).filter(tx => tx.value > 0);
       const addressesToCheck = [];
       for(let i = 0; i < 0; i++ ) {
         if (tx.value >= item.value) {
@@ -56,8 +56,8 @@ function processTransfer(id, item, bundles, callback) {
           callback(null, false);
           return;
         }
-        const signedBundles = transfer.sign(channel.seed, channel.state.index, channel.state.security, bundles);
-        transfer.applyTransfer(channel.state, signedBundles);
+        const signedBundles = transfer.sign(channel.seed, channel.flash.state.index, channel.flash.state.security, bundles);
+        transfer.applyTransfer(channel.flash, signedBundles);
         storage.set('channel_' + id, channel, (err, res) => {
           if (err) {
             callbakc(err);
@@ -77,7 +77,7 @@ function processTransfer(id, item, bundles, callback) {
 
 function validateOutputs(addresses, callback) {
   // TODO: replace with storage
-  const whitelist = ['AGGXW9LBTUORZLBTIQCPUOCCHIJJE9EFXYOHIIJMXRALPUWWJGRGTTAUCJJXVMYETNQVTTYDDEVCJRPZT'];
+  const whitelist = ["TRPSU9DSNROHLCPIXBXGDXPOLKPUOYZZBZJCEILRJNSIFZASLPKHCIDIDBRCJHASMENZMTICJMBZRANKM",'AGGXW9LBTUORZLBTIQCPUOCCHIJJE9EFXYOHIIJMXRALPUWWJGRGTTAUCJJXVMYETNQVTTYDDEVCJRPZT'];
   callback(null, !!addresses.filter((a) => whitelist.indexOf(a) !== -1).length);
 }
 
