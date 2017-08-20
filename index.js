@@ -104,10 +104,10 @@ app.post('/purchase', (req, res, next) => {
 });
 
 app.post('/item', (req, res) => {
-  if (req.get('Authorization') !== '') {
+ /* if (req.get('Authorization') !== '') {
     res.status(403).end();
     return;
-  }
+  }*/
   const item = {
     'id': req.body.id,
     'value': req.body.value

@@ -35,6 +35,10 @@ function getAddress(digests) {
 
 function processTransfer(id, item, bundles, callback) {
   storage.get('channel_' + id, (err, channel) => {
+    if (err) {
+      callback(err);
+      return;
+    }
     try {
       const txs = transfer.getDiff(state, bundles).filter(tx => tx.value > 0);
       const addressesToCheck = [];
@@ -65,7 +69,8 @@ function processTransfer(id, item, bundles, callback) {
       });
     } 
     catch (err) {
-      callback(err); 
+      console.log(err);
+      callback(null, false); 
     }
   });
 }
