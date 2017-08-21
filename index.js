@@ -144,6 +144,28 @@ app.post('/purchase', (req, res, next) => {
   });
 });
 
+app.post('/close', (req, res, next) => {
+  const bundles = req.body.bundles;
+  channel.processTransfer(req.body.id, {value: 0}, bundles, (err, signatures) => {
+    if (err) {
+      res.status(404).json({'error': 'Unknown channel'});
+      return;
+    }
+    if(!signatures) {
+      res.status(403).json({'error': 'Invalid transfer'}); 
+      return;
+    }
+
+    storage.set(req.body.id + '_close', signatures, (err) => {
+      if (err) {
+        res.status(500).json({'error': 'Internal server error'});
+        return;
+      }
+      res.json({ bundles: signatures});
+    });
+  });
+});
+
 app.post('/item', (req, res) => {
  /* if (req.get('Authorization') !== '') {
     res.status(403).end();
