@@ -1,7 +1,6 @@
 const express = require("express");
 const bodyParser = require('body-parser');
 const storage = require("./libs/storage");
-const serve = require("./libs/serve");
 const Flash = require("iota.flash.js");
 const multisig = Flash.multisig;
 const channel = require("./libs/channel");
@@ -93,7 +92,7 @@ app.post('/purchase', (req, res, next) => {
          res.status(403).json({'error': 'Invalid transfer'}); 
           return;
         }
-        const key = crypto.randomBytes(256).toString('hex');
+        const key = crypto.randomBytes(50).toString('hex');
         storage.set(item.id + '_' + key, 1, (err) => {
           if (err) {
             res.status(500).json({'error': 'Internal server error'});
@@ -137,13 +136,19 @@ app.get('/item/:item/:key', (req, res, next) => {
       res.status(403).json({'error': 'Unauthorized'});
       return;
     }
-    next();
+    var options = {
+      root: __dirname + "/public"
+    }
+    console.log(req.params.item)
+    // Respond with the file
+    return res.sendFile(req.params.item, options, function(err) {
+      // Throw if file doesn't exist
+      if (err) {
+        res.status(403).json({'error': 'File not found'});
+      }
+    })
   });
 })
-
-
-
-app.use(serve);
 
 app.listen(9000, function() {
   console.log("Listening on port 9000!")
