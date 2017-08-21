@@ -66,6 +66,42 @@ app.post('/register', (req, res, next) => {
   });
 });
 
+app.post('/branch', (req, res, next) => {
+  storage.get('channel_' + req.body.id, (err, state) => {
+    if (!state) {
+      res.status(404).json({'error': 'Channel not registered'});
+      return;
+    }
+    const clientDigests = req.body.digests;
+    let myDigests = clientDigests.map(() => multisig.getDigest(state.seed, state.flash.state.index++, state.flash.state.security));
+    { // compose multisigs, write to remainderAddress and root
+      let multisigs = clientDigests.map((digest, i) => {
+        let addy = multisig.composeAddress([digest, myDigests[i]])    
+        addy.index = myDigests[i].index
+        addy.security = myDigests[i].security 
+        return addy    
+      });
+      for(let i = 1; i < multisigs.length; i++) {
+        multisigs[i-1].children.push(multisigs[i]);
+      }
+      let node = state.flash.state.root;
+      while(node.address != req.body.address) {
+        node = node.children[node.children.length - 1];
+      }
+      node.children.push(multisigs[0]);
+    }
+    storage.set('channel_' + req.body.id, state, (err) =>{
+      if (err) {
+        res.send(500).end();
+        return;
+      }
+      res.json({
+        digests: myDigests
+      });
+    });
+  });
+});
+
 app.post('/address', (req, res, next) => {
   const clientDigest = req.body.digest;
   const digest = channel.getNewDigest(req.body.id, (err, digest) => {
@@ -83,12 +119,12 @@ app.post('/purchase', (req, res, next) => {
   const bundles = req.body.bundles;
   const item = storage.get('item_' + req.body.item, (err, item) => {
     if (item) {
-      channel.processTransfer(req.body.id, item, bundles, (err, valid) => {
+      channel.processTransfer(req.body.id, item, bundles, (err, signatures) => {
         if (err) {
           res.status(404).json({'error': 'Unknown channel'});
           return;
         }
-        if(!valid) {
+        if(!signatures) {
          res.status(403).json({'error': 'Invalid transfer'}); 
           return;
         }
@@ -98,7 +134,7 @@ app.post('/purchase', (req, res, next) => {
             res.status(500).json({'error': 'Internal server error'});
             return;
           }
-          res.json({'id': item.id,'key': key});
+          res.json({'id': item.id,'key': key, bundles: signatures});
         });
       });
     }

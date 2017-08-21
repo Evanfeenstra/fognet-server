@@ -208,14 +208,13 @@ inherits@2.0.3:
 
 "iota.crypto.js@github:iotaledger/iota.crypto.js":
   version "0.4.1"
-  uid d42a3b167b969d33bb57611af621a71a104a018c
   resolved "https://codeload.github.com/iotaledger/iota.crypto.js/tar.gz/d42a3b167b969d33bb57611af621a71a104a018c"
   dependencies:
     crypto-js "^3.1.9-1"
 
 "iota.flash.js@git+https://github.com/iotaledger/iota.flash.js.git":
   version "0.0.1"
-  resolved "git+https://github.com/iotaledger/iota.flash.js.git#c6e4ab8c4209cbf134a3cc3a260bbeda30e4938d"
+  resolved "git+https://github.com/iotaledger/iota.flash.js.git#85d91ef5eb08f8197e7133d9ece0fe58ff9cdbe1"
   dependencies:
     iota.crypto.js "github:iotaledger/iota.crypto.js"
 
