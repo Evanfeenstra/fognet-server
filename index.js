@@ -36,7 +36,12 @@ app.post('/register', (req, res, next) => {
       });
       let myDigests = digests.map(() => multisig.getDigest(seed, flash.state.index++, flash.state.security));
       { // compose multisigs, write to remainderAddress and root
-        let multisigs = digests.map((digest, i) => multisig.composeAddress([digest, myDigests[i]]));
+        let multisigs = digests.map((digest, i) => {
+          let addy = multisig.composeAddress([digest, myDigests[i]])    
+          addy.index = myDigests[i].index
+          addy.security = myDigests[i].security 
+          return addy    
+        });
         flash.state.remainderAddress = multisigs.shift();
         for(let i = 1; i < multisigs.length; i++) {
           multisigs[i-1].children.push(multisigs[i]);
