@@ -68,7 +68,7 @@ app.post('/register', (req, res, next) => {
 });
 
 app.post('/address', (req, res, next) => {
-  const clientDigest = req.body.digesi;
+  const clientDigest = req.body.digest;
   const digest = channel.getNewDigest(req.body.id, (err, digest) => {
     if (err) {
       res.status(404).json({'error': 'Unknown channel'});
@@ -93,8 +93,8 @@ app.post('/purchase', (req, res, next) => {
          res.status(403).json({'error': 'Invalid transfer'}); 
           return;
         }
-        const secret = crypto.radnomBytes(256).toString('hex');
-        storage.set('purchase_' + item.id, secret, (err) => {
+        const key = crypto.randomBytes(256).toString('hex');
+        storage.set(item.id + '_' + key, 1, (err) => {
           if (err) {
             res.status(500).json({'error': 'Internal server error'});
             return;
@@ -127,13 +127,13 @@ app.post('/item', (req, res) => {
   });
 })
 
-app.get('/item/:item/s/:secret', (req,res, next) => {
-  storage('item_' + req.params.item, (err, secret) => {
+app.get('/item/:item/:key', (req, res, next) => {
+  storage.get(req.params.item + '_' + req.params.key, (err, exists) => {
     if (err) {
       res.status(500).json({'error': 'Internal server error'});
       return;
     }
-    if (secret !== req.params.secret) {
+    if (exists !== 1) {
       res.status(403).json({'error': 'Unauthorized'});
       return;
     }
