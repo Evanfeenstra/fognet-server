@@ -1,5 +1,5 @@
 //const queryString = require("query-string")
-//const parseurl = require("parseurl")
+const parseurl = require("parseurl")
 
 module.exports = (req, res) => {
   // Get url info
@@ -13,7 +13,7 @@ module.exports = (req, res) => {
     root: __dirname + "/../public"
   }
   // Respond with the file
-  return res.sendFile(url.pathname, options, function(err) {
+  return res.sendFile(parseurl(req).pathname, options, function(err) {
     // Throw if file doesn't exist
     if (err) {
       res.send(`<p>File not found</p>`)

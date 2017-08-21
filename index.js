@@ -99,7 +99,7 @@ app.post('/purchase', (req, res, next) => {
             res.status(500).json({'error': 'Internal server error'});
             return;
           }
-          next();
+          res.json({'id': item.id,'key': key});
         });
       });
     }
