@@ -69,12 +69,12 @@ function processTransfer(id, item, bundles, callback) {
           flashState.deposit, 
           flashState.stakes, 
           flashState.outputs, 
-          flashState.remainder, 
+          flashState.remainderAddress, 
           flashState.transfers, 
           signedBundles);
         storage.set('channel_' + id, channel, (err, res) => {
           if (err) {
-            callbakc(err);
+            callback(err);
           }
           else {
             callback(null, signedBundles);

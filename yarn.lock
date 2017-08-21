@@ -215,7 +215,7 @@ inherits@2.0.3:
 
 "iota.flash.js@git+https://github.com/iotaledger/iota.flash.js.git":
   version "0.0.1"
-  resolved "git+https://github.com/iotaledger/iota.flash.js.git#26057bcb7d7ae9e9aa26c1e4428c6be80ce2e97c"
+  resolved "git+https://github.com/iotaledger/iota.flash.js.git#c6e4ab8c4209cbf134a3cc3a260bbeda30e4938d"
   dependencies:
     iota.crypto.js "github:iotaledger/iota.crypto.js"
 
@@ -226,6 +226,12 @@ iota.lib.js@^0.4.0:
     async "^2.5.0"
     crypto-js "^3.1.9-1"
     xmlhttprequest "^1.8.0"
+
+"iota@git+https://github.com/iotaledger/iota.flash.js.git":
+  version "0.0.1"
+  resolved "git+https://github.com/iotaledger/iota.flash.js.git#14531e9da1345fb0c25eca4d3c083b1dfd586f27"
+  dependencies:
+    iota.crypto.js "github:iotaledger/iota.crypto.js"
 
 ipaddr.js@1.4.0:
   version "1.4.0"
