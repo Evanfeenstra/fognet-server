@@ -43,8 +43,8 @@ function processTransfer(id, item, bundles, callback) {
       const state = channel.flash.state;
       const txs = transfer.getDiff(
         state.root, 
-        state.remainder, 
-        state.history, 
+        state.remainderAddress, 
+        state.transfers, 
         bundles).filter(tx => tx.value > 0);
       const addressesToCheck = [];
       for(let i = 0; i < 0; i++ ) {
