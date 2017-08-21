@@ -41,17 +41,11 @@ function processTransfer(id, item, bundles, callback) {
     }
     try {
       const state = channel.flash.state;
-      const txs = transfer.getDiff(
+      const addressesToCheck = transfer.getDiff(
         state.root, 
         state.remainderAddress, 
         state.transfers, 
-        bundles).filter(tx => tx.value > 0);
-      const addressesToCheck = [];
-      for(let i = 0; i < 0; i++ ) {
-        if (tx.value >= item.value) {
-          addressesToCheck.push(tx.address); 
-        }
-      }
+        bundles).filter(tx => tx.value >= item.value).map(tx => tx.address);
       validateOutputs(addressesToCheck, (err, valid) => {
         if (err) {
           callback(err);
