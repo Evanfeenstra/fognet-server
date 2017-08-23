@@ -30,8 +30,8 @@ app.post('/register', (req, res, next) => {
       flash = new Flash({
         'index': 0,
         'security': 2,
-        'deposit': [0, 0, 0],
-        'stakes': [1, 0, 0],
+        'deposit': [200, 200],
+        'stakes': [1, 0],
       });
       let myDigests = digests.map(() => multisig.getDigest(seed, flash.state.index++, flash.state.security));
       { // compose multisigs, write to remainderAddress and root
