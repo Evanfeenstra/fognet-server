@@ -203,6 +203,7 @@ app.get('/item/:item/:key', (req, res, next) => {
       // Throw if file doesn't exist
       if (err) {
         res.status(403).json({'error': 'File not found'});
+        return
       }
     })
   });
