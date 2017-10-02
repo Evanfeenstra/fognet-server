@@ -200,23 +200,23 @@ inherits@2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.3.tgz#633c2c83e3da42a502f52466022480f4208261de"
 
-"iota.crypto.js@git+https://github.com/iotaledger/iota.crypto.js.git":
+"iota.crypto.js@github:l3wi/iota.crypto.js":
   version "0.4.1"
-  resolved "git+https://github.com/iotaledger/iota.crypto.js.git#d42a3b167b969d33bb57611af621a71a104a018c"
+  resolved "https://codeload.github.com/l3wi/iota.crypto.js/tar.gz/b5df9599359d81522046ab697eadff32ef475f78"
   dependencies:
     crypto-js "^3.1.9-1"
 
-"iota.crypto.js@github:iotaledger/iota.crypto.js":
+iota.crypto.js@l3wi/iota.crypto.js.git:
   version "0.4.1"
-  resolved "https://codeload.github.com/iotaledger/iota.crypto.js/tar.gz/d42a3b167b969d33bb57611af621a71a104a018c"
+  resolved "https://codeload.github.com/l3wi/iota.crypto.js/tar.gz/33fa0b85314b78c7d836e92325bb1621f56c304e"
   dependencies:
     crypto-js "^3.1.9-1"
 
-"iota.flash.js@git+https://github.com/iotaledger/iota.flash.js.git":
+iota.flash.js@l3wi/iota.flash.js.git:
   version "0.0.1"
-  resolved "git+https://github.com/iotaledger/iota.flash.js.git#0254038e2003cec62c1d63337f0886f7c86174bd"
+  resolved "https://codeload.github.com/l3wi/iota.flash.js/tar.gz/7f7f530a55779241afbc76cc761f48f4e832a2ae"
   dependencies:
-    iota.crypto.js "github:iotaledger/iota.crypto.js"
+    iota.crypto.js "github:l3wi/iota.crypto.js"
 
 iota.lib.js@^0.4.1:
   version "0.4.1"
@@ -225,12 +225,6 @@ iota.lib.js@^0.4.1:
     async "^2.5.0"
     crypto-js "^3.1.9-1"
     xmlhttprequest "^1.8.0"
-
-"iota@git+https://github.com/iotaledger/iota.flash.js.git":
-  version "0.0.1"
-  resolved "git+https://github.com/iotaledger/iota.flash.js.git#14531e9da1345fb0c25eca4d3c083b1dfd586f27"
-  dependencies:
-    iota.crypto.js "github:iotaledger/iota.crypto.js"
 
 ipaddr.js@1.4.0:
   version "1.4.0"
