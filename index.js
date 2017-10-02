@@ -18,47 +18,48 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/register', (req, res, next) => { 
   storage.get('channel_' + req.body.id, (err, state) => {
     if (state) {
-      res.json({'error': 'Channel already exists'});
-      return;
+      return res.json({'error': 'Channel already exists'});
     }
     channel.getSubseed(SEED, (err, seed) => {
       if (err) {
-        res.send(500).json({'error': 'Internal server error'});
-        return;
+        return  res.send(500).json({'error': 'Internal server error'});
       }
       const digests = req.body.digests;
-      flash = new Flash({
+      flash = {
         'index': 0,
         'security': 2,
         'deposit': [400, 0],
-        'stakes': [1, 0],
-      });
-      let myDigests = digests.map(() => multisig.getDigest(seed, flash.state.index++, flash.state.security));
+        'outputs': {},
+        'transfers': [],
+        'signersCount': 2        
+      }
+      let myDigests = digests.map(() => multisig.getDigest(seed, flash.index++, flash.security));
       { // compose multisigs, write to remainderAddress and root
         let multisigs = digests.map((digest, i) => {
           let addy = multisig.composeAddress([digest, myDigests[i]])    
           addy.index = myDigests[i].index
-          addy.security = myDigests[i].security 
+          addy.security = 2
+          addy.signingIndex = 2          
+          addy.securitySum = 4          
           return addy    
         });
-        flash.state.remainderAddress = multisigs.shift();
+        flash.remainderAddress = multisigs.shift();
         for(let i = 1; i < multisigs.length; i++) {
           multisigs[i-1].children.push(multisigs[i]);
         }
-        flash.state.root = multisigs.shift();
+        flash.root = multisigs.shift();
       }
       storage.set('channel_' + req.body.id, {
         'seed': seed, 
         'flash': flash
       }, (err) =>{
         if (err) {
-          res.send(500).end();
-          return;
+          return  res.send(500).end();
         }
         //
         // TODO: respond to client and establish channel        
         //
-        res.json({
+        return res.json({
           digests: myDigests
         });
       });
@@ -69,22 +70,23 @@ app.post('/register', (req, res, next) => {
 app.post('/branch', (req, res, next) => {
   storage.get('channel_' + req.body.id, (err, state) => {
     if (!state) {
-      res.status(404).json({'error': 'Channel not registered'});
-      return;
+      return res.status(404).json({'error': 'Channel not registered'});
     }
     const clientDigests = req.body.digests;
-    let myDigests = clientDigests.map(() => multisig.getDigest(state.seed, state.flash.state.index++, state.flash.state.security));
+    let myDigests = clientDigests.map(() => multisig.getDigest(state.seed, state.flash.index++, state.flash.security));
     { // compose multisigs, write to remainderAddress and root
       let multisigs = clientDigests.map((digest, i) => {
         let addy = multisig.composeAddress([digest, myDigests[i]])    
         addy.index = myDigests[i].index
-        addy.security = myDigests[i].security 
+        addy.security = 2
+        addy.signingIndex = 2          
+        addy.securitySum = 4  
         return addy    
       });
       for(let i = 1; i < multisigs.length; i++) {
         multisigs[i-1].children.push(multisigs[i]);
       }
-      let node = state.flash.state.root;
+      let node = state.flash.root;
       while(node.address != req.body.address) {
         node = node.children[node.children.length - 1];
       }
@@ -92,10 +94,9 @@ app.post('/branch', (req, res, next) => {
     }
     storage.set('channel_' + req.body.id, state, (err) =>{
       if (err) {
-        res.send(500).end();
-        return;
+        return  res.send(500).end();
       }
-      res.json({
+      return res.json({
         digests: myDigests
       });
     });
@@ -106,10 +107,9 @@ app.post('/address', (req, res, next) => {
   const clientDigest = req.body.digest;
   const digest = channel.getNewDigest(req.body.id, (err, digest) => {
     if (err) {
-      res.status(404).json({'error': 'Unknown channel'});
-      return;
+      return res.status(404).json({'error': 'Unknown channel'});
     }
-    res.json({
+    return res.json({
       'address': channel.getAddress([clientDigest, digest])
     });
   });
@@ -121,25 +121,22 @@ app.post('/purchase', (req, res, next) => {
     if (item) {
       channel.processTransfer(req.body.id, item, bundles, (err, signatures) => {
         if (err) {
-          res.status(404).json({'error': 'Unknown channel'});
-          return;
+          return res.status(404).json({'error': 'Unknown channel'});
         }
         if(!signatures) {
-         res.status(403).json({'error': 'Invalid transfer'}); 
-          return;
+          return res.status(403).json({'error': 'Invalid transfer'}); 
         }
         const key = crypto.randomBytes(50).toString('hex');
         storage.set(item.id + '_' + key, 1, (err) => {
           if (err) {
-            res.status(500).json({'error': 'Internal server error'});
-            return;
+            return res.status(500).json({'error': 'Internal server error'});
           }
-          res.json({'id': item.id,'key': key, bundles: signatures});
+          return res.json({'id': item.id,'key': key, bundles: signatures});
         });
       });
     }
     else {
-      res.status(404).json({'error': 'Item not found'});
+      return res.status(404).json({'error': 'Item not found'});
     }
   });
 });
@@ -148,20 +145,17 @@ app.post('/close', (req, res, next) => {
   const bundles = req.body.bundles;
   channel.processTransfer(req.body.id, {value: 0}, bundles, (err, signatures) => {
     if (err) {
-      res.status(404).json({'error': 'Unknown channel'});
-      return;
+      return res.status(404).json({'error': 'Unknown channel'});
     }
     if(!signatures) {
-      res.status(403).json({'error': 'Invalid transfer'}); 
-      return;
+      return res.status(403).json({'error': 'Invalid transfer'}); 
     }
 
     storage.set(req.body.id + '_close', signatures, (err) => {
       if (err) {
-        res.status(500).json({'error': 'Internal server error'});
-        return;
+        return res.status(500).json({'error': 'Internal server error'});
       }
-      res.json({ bundles: signatures});
+      return res.json({ bundles: signatures});
     });
   });
 });
@@ -177,22 +171,19 @@ app.post('/item', (req, res) => {
   }
   storage.set('item_' + item.id, item, (err) => {
     if (err) {
-      res.status(500).end();
-      return;
+      return res.status(500).end();
     }
-    res.json(item);
+    return res.json(item);
   });
 })
 
 app.get('/item/:item/:key', (req, res, next) => {
   storage.get(req.params.item + '_' + req.params.key, (err, exists) => {
     if (err) {
-      res.status(500).json({'error': 'Internal server error'});
-      return;
+      return res.status(500).json({'error': 'Internal server error'});
     }
     if (exists !== 1) {
-      res.status(403).json({'error': 'Unauthorized'});
-      return;
+      return res.status(403).json({'error': 'Unauthorized'});
     }
     var options = {
       root: __dirname + "/public"
@@ -202,8 +193,7 @@ app.get('/item/:item/:key', (req, res, next) => {
     return res.sendFile(req.params.item, options, function(err) {
       // Throw if file doesn't exist
       if (err) {
-        res.status(403).json({'error': 'File not found'});
-        return
+        return res.status(403).json({'error': 'File not found'});
       }
     })
   });
