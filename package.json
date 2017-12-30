@@ -1,7 +1,7 @@
 {
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node static/index.js"
   },
   "dependencies": {
     "body-parser": "^1.17.2",

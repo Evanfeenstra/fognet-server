@@ -1,9 +1,9 @@
 const express = require("express")
 const bodyParser = require("body-parser")
-const storage = require("./libs/storage")
-const Flash = require("./libs/iota.flash.js")
+const storage = require("../libs/storage")
+const Flash = require("../libs/iota.flash.js")
 const multisig = Flash.multisig
-const channel = require("./libs/channel")
+const channel = require("../libs/channel")
 const cors = require("cors")
 const crypto = require("crypto")
 var Inliner = require('inliner')
@@ -242,5 +242,5 @@ app.get("/item/:item/:key", (req, res, next) => {
 })
 
 app.listen(8081, function() {
-  console.log("Listening on port 8081!!!")
+  console.log("Listening on port 8081!")
 })
