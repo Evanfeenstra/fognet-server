@@ -1,8 +1,8 @@
 const add = require("iota.crypto.js").add
 const converter = require("iota.crypto.js").converter
 const storage = require("./storage")
-const multisig = require("iota.flash.js").multisig
-const transfer = require("iota.flash.js").transfer
+const multisig = require("./iota.flash.js").multisig
+const transfer = require("./iota.flash.js").transfer
 
 function getSubseed(seed, callback) {
   storage.incr("index", (err, index) => {

@@ -1,0 +1,40 @@
+{
+  "name": "iota.flash.js",
+  "version": "0.0.1",
+  "description": "IOTA Flash Payment Channels",
+  "main": "./lib/flash.js",
+  "scripts": {
+    "test": "mocha",
+    "build": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/l3wi/flashLib.git"
+  },
+  "keywords": ["payment", "channel", "tangle", "iota"],
+  "files": ["/lib/multisig.js", "/lib/transfer.js"],
+  "authors": [
+    "Paul Handy <paul@iota.org>",
+    "Chris Dukakis <chris.dukakis@iota.org>",
+    "Lewis Freiberg <>",
+    "Peter Willemsen <peter@codebuffet.co>"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iotaledger/iota.flash.js/issues"
+  },
+  "homepage": "https://github.com/iotaledger/iota.flash.js#readme",
+  "devDependencies": {
+    "chai": "^4.1.1",
+    "del": "^3.0.0",
+    "eslint": "^4.5.0",
+    "gulp": "^3.9.1",
+    "gulp-eslint": "^4.0.0",
+    "gulp-nsp": "^2.4.2",
+    "mocha": "^3.5.0",
+    "webpack-stream": "^4.0.0"
+  },
+  "dependencies": {
+    "iota.crypto.js": "github:iotaledger/iota.crypto.js"
+  }
+}
