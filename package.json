@@ -7,6 +7,7 @@
     "body-parser": "^1.17.2",
     "cors": "^2.8.4",
     "express": "^4.15.4",
+    "inliner": "^1.13.1",
     "iota.crypto.js": "l3wi/iota.crypto.js.git",
     "iota.flash.js": "l3wi/iota.flash.js.git",
     "iota.lib.js": "^0.4.1",

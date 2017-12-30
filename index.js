@@ -6,9 +6,10 @@ const multisig = Flash.multisig
 const channel = require("./libs/channel")
 const cors = require("cors")
 const crypto = require("crypto")
+var Inliner = require('inliner')
 
 const SEED =
-  "DDVZVZ9QJPUGMDAKGPTEUBOS9AWWVWF99MCKNIXALMKJRBGSQMXOVBRKHSJNOVMBZJRRRMVNXJCKPXPXJ"
+  "DDVZVZ9QJPUGWDAKGPTEUBOS9AWWWWF99MCKNIXALMKJRBGSQWXOVWRKHSJNOVWBZJRRRWVNXJCKPXPXJ"
 
 const app = express()
 
@@ -16,7 +17,20 @@ app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
+app.post('/fognet', (req, res, next) => {
+  console.log('/fognet ', req.body.url)
+
+  new Inliner(req.body.url, (error, html) => {
+    // compressed and inlined HTML page
+    return res.json({
+      html: html
+    })
+  });
+  //storage.get("channel_" + req.body.id, (err, state) => {
+})
+
 app.post("/register", (req, res, next) => {
+  console.log('/register ', req.body.id)
   storage.get("channel_" + req.body.id, (err, state) => {
     if (state) {
       return res.json({ error: "Channel already exists" })
@@ -76,6 +90,7 @@ app.post("/register", (req, res, next) => {
 })
 
 app.post("/branch", (req, res, next) => {
+  console.log('/branch ', req.body.id)
   storage.get("channel_" + req.body.id, (err, state) => {
     if (!state) {
       return res.status(404).json({ error: "Channel not registered" })
@@ -115,6 +130,7 @@ app.post("/branch", (req, res, next) => {
 })
 
 app.post("/address", (req, res, next) => {
+  console.log('/address ', req.body.id)
   const clientDigest = req.body.digest
   const digest = channel.getNewDigest(req.body.id, (err, digest) => {
     if (err) {
@@ -128,7 +144,7 @@ app.post("/address", (req, res, next) => {
 
 app.post("/purchase", (req, res, next) => {
   const bundles = req.body.bundles
-  console.log("Getting Item")
+  console.log("Getting Item!")
   storage.get("item_" + req.body.item, (err, item) => {
     if (item) {
       channel.processTransfer(req.body.id, item, bundles, (err, signatures) => {
@@ -153,6 +169,7 @@ app.post("/purchase", (req, res, next) => {
 })
 
 app.post("/close", (req, res, next) => {
+  console.log('/close ', req.body.id)
   const bundles = req.body.bundles
   channel.processTransfer(
     req.body.id,
@@ -177,6 +194,7 @@ app.post("/close", (req, res, next) => {
 })
 
 app.post("/item", (req, res) => {
+  console.log('/item ', req.body.id)
   /* if (req.get('Authorization') !== '') {
     res.status(403).end();
     return;
@@ -204,7 +222,6 @@ app.get("/item/:item/:key", (req, res, next) => {
     }
 
     storage.get("item_" + req.params.item, (err, data) => {
-      console.log(data)
       if (err) {
         return res.status(500).end()
       }
@@ -213,7 +230,6 @@ app.get("/item/:item/:key", (req, res, next) => {
       var options = {
         root: __dirname + "/public"
       }
-      console.log(req.params.item)
       // Respond with the file
       return res.sendFile(req.params.item, options, function(err) {
         // Throw if file doesn't exist
@@ -226,5 +242,5 @@ app.get("/item/:item/:key", (req, res, next) => {
 })
 
 app.listen(9000, function() {
-  console.log("Listening on port 9000!")
+  console.log("Listening on port 9000!!!")
 })
