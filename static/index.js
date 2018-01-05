@@ -7,6 +7,7 @@ const channel = require("../libs/channel")
 const cors = require("cors")
 const crypto = require("crypto")
 var Inliner = require('inliner')
+var SerialPort = require('serialport');
 
 const SEED =
   "DDVZVZ9QJPUGWDAKGPTEUBOS9AWWWWF99MCKNIXALMKJRBGSQWXOVWRKHSJNOVWBZJRRRWVNXJCKPXPXJ"
@@ -16,6 +17,41 @@ const app = express()
 app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+
+SerialPort.list(function (err, ports) {
+  ports.forEach(function(port) {
+    if(port.comName.includes('usbmodem')){
+      var port = new SerialPort(port.comName, 9600)
+      port.on('data', unChunk);
+    }
+  });
+});
+
+var chunks = []
+function unChunk(data) {
+  var text = String.fromCharCode.apply(null, data)
+  if(text.includes('<start>')){
+    chunks = []
+  } else if (text.includes('<done>')){
+    var s = ''
+    chunks.forEach(function(chunk){
+      s += chunk.substr(0,18).replace(/ /g,'')
+    })
+    console.log(s)
+    new Inliner(s, (error, html) => {
+      // compressed and inlined HTML page
+      console.log(html)
+      return res.json({
+        html: html
+      })
+    });
+  } else {
+    chunks.push(text)
+  }
+}
+
+
+
 
 app.post('/fognet', (req, res, next) => {
   console.log('/fognet ', req.body.url)
