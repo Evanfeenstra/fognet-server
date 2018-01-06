@@ -19,13 +19,15 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 SerialPort.list(function (err, ports) {
-  ports.forEach(function(port) {
-    if(port.comName.includes('usbmodem')){
-      var port = new SerialPort(port.comName, 9600)
-      port.on('data', unChunk);
-    }
-  });
-});
+  var port = ports.find(p=>p.comName.includes('/dev/tty.usbmodem'))
+  if(port){
+    console.log('found teensy ' + port.comName)
+    var port = new SerialPort(port.comName, 9600)
+    port.on('data', unChunk)
+  } else {
+    console.log('no nRF52832 found')
+  }
+})
 
 var chunks = []
 function unChunk(data) {
@@ -44,10 +46,14 @@ function unChunk(data) {
       return res.json({
         html: html
       })
-    });
+    })
   } else {
     chunks.push(text)
   }
+}
+
+const BleActions = {
+  'url':'hi'
 }
 
 
@@ -61,7 +67,7 @@ app.post('/fognet', (req, res, next) => {
     return res.json({
       html: html
     })
-  });
+  })
   //storage.get("channel_" + req.body.id, (err, state) => {
 })
 
