@@ -7,60 +7,103 @@ const channel = require("../libs/channel")
 const cors = require("cors")
 const crypto = require("crypto")
 var Inliner = require('inliner')
-var SerialPort = require('serialport');
-
-const SEED =
-  "DDVZVZ9QJPUGWDAKGPTEUBOS9AWWWWF99MCKNIXALMKJRBGSQWXOVWRKHSJNOVWBZJRRRWVNXJCKPXPXJ"
+var serialport = require('serialport');
 
 const app = express()
+var Serial = {}
 
-app.use(cors())
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
-
-SerialPort.list(function (err, ports) {
+serialport.list(function (err, ports) {
   var port = ports.find(p=>p.comName.includes('/dev/tty.usbmodem'))
   if(port){
     console.log('found teensy ' + port.comName)
-    var port = new SerialPort(port.comName, 9600)
-    port.on('data', unChunk)
+    Serial = new serialport(port.comName, 9600)
+    Serial.on('data', unChunk)
+    app.use(cors())
+    app.use(bodyParser.json())
+    app.use(bodyParser.urlencoded({ extended: true }))
   } else {
     console.log('no nRF52832 found')
   }
 })
 
+function str2ab(str) {
+  var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+  var bufView = new Uint16Array(buf);
+  for (var i=0, strLen=str.length; i<strLen; i++) {
+    bufView[i] = str.charCodeAt(i);
+  }
+  return buf;
+}
+
 var chunks = []
 function unChunk(data) {
-  var text = String.fromCharCode.apply(null, data)
-  if(text.includes('<start>')){
+  console.log("UNCHUNK")
+  const text = String.fromCharCode.apply(null, data)
+  if(text.includes('<*>')){
+    const cmd = text.substr(3,15).replace(/\s/g, '')
     chunks = []
-  } else if (text.includes('<done>')){
+  } else if (text.includes('<^>')){
+    const cmd = text.substr(3,15).replace(/\s/g, '')
     var s = ''
     chunks.forEach(function(chunk){
-      s += chunk.substr(0,18).replace(/ /g,'')
+      s += chunk.substr(0,18)
     })
+    BleActions[cmd](s)
     console.log(s)
-    new Inliner(s, (error, html) => {
-      // compressed and inlined HTML page
-      console.log(html)
-      return res.json({
-        html: html
-      })
-    })
+    chunks = [] 
   } else {
     chunks.push(text)
   }
 }
 
-const BleActions = {
-  'url':'hi'
+function bleWrite(data){
+  return new Promise(function(resolve,reject){
+    Serial.write(data, function(err) {
+      console.log(data)
+      if (err) {
+        reject('Error on write: ', err.message)
+      }
+      resolve('message written')
+    })
+  })
 }
 
+function BleAPI(cmd, data) {
+  console.log('/' + cmd)
+  const num = Math.ceil(data.length / 18)
+  const chunks = []
+  chunks.push(`<*>${cmd}`)
+  for(var i=0; i<num; i++){
+    chunks.push(data.substr(i*18, 18))
+  }
+  chunks.push(`<^>${cmd}`)
+  
+  chunks.reduce((prev, val) => {
+    return prev.then(() => bleWrite(val + '\r\n'))
+  }, Promise.resolve())
+  /*Serial.write('hi', function(err) {
+    if (err) {
+      return console.log('Error on write: ', err.message)
+    }
+    console.log('message written')
+  })*/
+}
 
+const BleActions = {
+  web:function(s){
+    // sending "testing" right back to teensy
+    const byteArray = BleAPI('web', s.replace(/ /g,''))
+    /*new Inliner(s.replace(/ /g,''), (error, html) => {
+      console.log(html)
+      //const byteArray = chunk(s)
+      //console.log(byteArray)
+    })*/
+  },
 
+}
 
-app.post('/fognet', (req, res, next) => {
-  console.log('/fognet ', req.body.url)
+app.post('/fognetdemo', (req, res, next) => {
+  console.log('/fognetdemo ', req.body.url)
 
   new Inliner(req.body.url, (error, html) => {
     // compressed and inlined HTML page
@@ -70,6 +113,9 @@ app.post('/fognet', (req, res, next) => {
   })
   //storage.get("channel_" + req.body.id, (err, state) => {
 })
+
+const SEED =
+  "DDVZVZ9QJPUGWDAKGPTEUBOS9AWWWWF99MCKNIXALMKJRBGSQWXOVWRKHSJNOVWBZJRRRWVNXJCKPXPXJ"
 
 app.post("/register", (req, res, next) => {
   console.log('/register ', req.body.id)
