@@ -10,6 +10,9 @@ var Inliner = require('inliner')
 var serialport = require('serialport');
 
 const app = express()
+app.use(cors())
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 var Serial = {}
 
 serialport.list(function (err, ports) {
@@ -18,9 +21,6 @@ serialport.list(function (err, ports) {
     console.log('found teensy ' + port.comName)
     Serial = new serialport(port.comName, 9600)
     Serial.on('data', unChunk)
-    app.use(cors())
-    app.use(bodyParser.json())
-    app.use(bodyParser.urlencoded({ extended: true }))
   } else {
     console.log('no nRF52832 found')
   }
@@ -49,7 +49,7 @@ function unChunk(data) {
       s += chunk.substr(0,18)
     })
     BleActions[cmd](s)
-    chunks = [] 
+    chunks = []
   } else {
     chunks.push(text)
   }
@@ -57,12 +57,15 @@ function unChunk(data) {
 
 function serialWrite(data){
   return new Promise(function(resolve,reject){
-    Serial.write(data, function(err) {
-      if (err) {
-        reject('Error on write: ', err.message)
-      }
-      resolve('message written')
-    })
+    let wait = setTimeout(() => {
+      clearTimeout(wait);
+      Serial.write(data, function(err) {
+        if (err) {
+          reject('Error on write: ', err.message)
+        }
+        resolve('message written')
+      })
+    }, 42)
   })
 }
 
@@ -76,6 +79,8 @@ function BleAPI(cmd, data) {
   }
   chunks.push(`<^>${cmd}`)
   console.log("PUSH BACK TO TEENSY")
+  console.log(chunks)
+  console.log("====================")
   chunks.reduce((prev, val) => {
     return prev.then(() => serialWrite(val + '\r\n'))
   }, Promise.resolve())
@@ -84,19 +89,19 @@ function BleAPI(cmd, data) {
 const BleActions = {
   web:function(s){
     // sending "testing" right back to teensy
-    BleAPI('web', s.replace(/ /g,''))
-    /*new Inliner(s.replace(/ /g,''), (error, html) => {
+    //BleAPI('web', s.replace(/ /g,''))
+    new Inliner(s.replace(/ /g,''), (error, html) => {
       console.log('hello',html)
-      BleAPI('web', html)   /// CAUSING TEENSY TO HANG!!!!!!!
+      BleAPI('web', html)
       //const byteArray = chunk(s)
       //console.log(byteArray)
-    })*/
+    })
   },
 
 }
 
 app.post('/fognetdemo', (req, res, next) => {
-  console.log('/fognetdemo ', req.body.url)
+  console.log('/fognetdemo ', req)
 
   new Inliner(req.body.url, (error, html) => {
     // compressed and inlined HTML page
