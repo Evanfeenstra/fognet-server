@@ -37,8 +37,8 @@ function str2ab(str) {
 
 var chunks = []
 function unChunk(data) {
-  console.log("UNCHUNK")
   const text = String.fromCharCode.apply(null, data)
+  console.log("RECIEVED SERIAL ",text)
   if(text.includes('<*>')){
     const cmd = text.substr(3,15).replace(/\s/g, '')
     chunks = []
@@ -49,17 +49,15 @@ function unChunk(data) {
       s += chunk.substr(0,18)
     })
     BleActions[cmd](s)
-    console.log(s)
     chunks = [] 
   } else {
     chunks.push(text)
   }
 }
 
-function bleWrite(data){
+function serialWrite(data){
   return new Promise(function(resolve,reject){
     Serial.write(data, function(err) {
-      console.log(data)
       if (err) {
         reject('Error on write: ', err.message)
       }
@@ -69,7 +67,7 @@ function bleWrite(data){
 }
 
 function BleAPI(cmd, data) {
-  console.log('/' + cmd)
+  console.log('/' + cmd + ' ' + data)
   const num = Math.ceil(data.length / 18)
   const chunks = []
   chunks.push(`<*>${cmd}`)
@@ -77,24 +75,19 @@ function BleAPI(cmd, data) {
     chunks.push(data.substr(i*18, 18))
   }
   chunks.push(`<^>${cmd}`)
-  
+  console.log("PUSH BACK TO TEENSY")
   chunks.reduce((prev, val) => {
-    return prev.then(() => bleWrite(val + '\r\n'))
+    return prev.then(() => serialWrite(val + '\r\n'))
   }, Promise.resolve())
-  /*Serial.write('hi', function(err) {
-    if (err) {
-      return console.log('Error on write: ', err.message)
-    }
-    console.log('message written')
-  })*/
 }
 
 const BleActions = {
   web:function(s){
     // sending "testing" right back to teensy
-    const byteArray = BleAPI('web', s.replace(/ /g,''))
+    BleAPI('web', s.replace(/ /g,''))
     /*new Inliner(s.replace(/ /g,''), (error, html) => {
-      console.log(html)
+      console.log('hello',html)
+      BleAPI('web', html)   /// CAUSING TEENSY TO HANG!!!!!!!
       //const byteArray = chunk(s)
       //console.log(byteArray)
     })*/
