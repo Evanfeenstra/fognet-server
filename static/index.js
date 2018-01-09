@@ -58,28 +58,27 @@ function unChunk(data) {
 function serialWrite(data){
   return new Promise(function(resolve,reject){
     let wait = setTimeout(() => {
-      clearTimeout(wait);
+      clearTimeout(wait)
       Serial.write(data, function(err) {
         if (err) {
           reject('Error on write: ', err.message)
         }
         resolve('message written')
       })
-    }, 42)
+    }, 120)
   })
 }
 
 function BleAPI(cmd, data) {
-  console.log('/' + cmd + ' ' + data)
+  console.log(`/${cmd} ${data.length}`)
   const num = Math.ceil(data.length / 18)
   const chunks = []
-  chunks.push(`<*>${cmd}`)
+  chunks.push(`<*>${cmd}<*>${num}`)
   for(var i=0; i<num; i++){
     chunks.push(data.substr(i*18, 18))
   }
   chunks.push(`<^>${cmd}`)
   console.log("PUSH BACK TO TEENSY")
-  console.log(chunks)
   console.log("====================")
   chunks.reduce((prev, val) => {
     return prev.then(() => serialWrite(val + '\r\n'))
@@ -91,13 +90,11 @@ const BleActions = {
     // sending "testing" right back to teensy
     //BleAPI('web', s.replace(/ /g,''))
     new Inliner(s.replace(/ /g,''), (error, html) => {
-      console.log('hello',html)
       BleAPI('web', html)
       //const byteArray = chunk(s)
       //console.log(byteArray)
     })
-  },
-
+  }
 }
 
 app.post('/fognetdemo', (req, res, next) => {
