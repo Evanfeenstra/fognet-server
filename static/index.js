@@ -35,23 +35,23 @@ function str2ab(str) {
   return buf;
 }
 
-var chunks = []
+var packets = []
 function unChunk(data) {
   const text = String.fromCharCode.apply(null, data)
   console.log("RECIEVED SERIAL ",text)
   if(text.includes('<*>')){
     const cmd = text.substr(3,15).replace(/\s/g, '')
-    chunks = []
+    packets = []
   } else if (text.includes('<^>')){
     const cmd = text.substr(3,15).replace(/\s/g, '')
     var s = ''
-    chunks.forEach(function(chunk){
-      s += chunk.substr(0,18)
+    packets.forEach(function(p){
+      s += p.substr(0,18)
     })
     BleActions[cmd](s)
-    chunks = []
+    packets = []
   } else {
-    chunks.push(text)
+    packets.push(text)
   }
 }
 
@@ -65,22 +65,21 @@ function serialWrite(data){
         }
         resolve('message written')
       })
-    }, 120)
+    }, 100) // todo: remove this delay, use value request instead
   })
 }
 
 function BleAPI(cmd, data) {
   console.log(`/${cmd} ${data.length}`)
   const num = Math.ceil(data.length / 18)
-  const chunks = []
-  chunks.push(`<*>${cmd}<*>${num}`)
+  const packets = []
+  packets.push(`<*>${cmd}<*>${num}`)
   for(var i=0; i<num; i++){
-    chunks.push(data.substr(i*18, 18))
+    packets.push(data.substr(i*18, 18))
   }
-  chunks.push(`<^>${cmd}`)
-  console.log("PUSH BACK TO TEENSY")
-  console.log("====================")
-  chunks.reduce((prev, val) => {
+  packets.push(`<^>${cmd}`)
+  console.log("==========PUSH BACK TO TEENSY==========")
+  packets.reduce((prev, val) => {
     return prev.then(() => serialWrite(val + '\r\n'))
   }, Promise.resolve())
 }
@@ -96,6 +95,11 @@ const BleActions = {
     })
   }
 }
+
+app.get('/test', (req, res, next) => {
+  console.log('/test!')
+  return "hi"
+})
 
 app.post('/fognetdemo', (req, res, next) => {
   console.log('/fognetdemo ', req)
@@ -160,9 +164,6 @@ app.post("/register", (req, res, next) => {
           if (err) {
             return res.send(500).end()
           }
-          //
-          // TODO: respond to client and establish channel
-          //
           return res.json({
             digests: myDigests
           })
