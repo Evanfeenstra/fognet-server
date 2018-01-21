@@ -102,7 +102,7 @@ app.get('/test', (req, res, next) => {
 })
 
 app.post('/fognetdemo', (req, res, next) => {
-  console.log('/fognetdemo ', req)
+  console.log('/fognetdemo ', req.body.url)
 
   new Inliner(req.body.url, (error, html) => {
     // compressed and inlined HTML page
@@ -110,11 +110,10 @@ app.post('/fognetdemo', (req, res, next) => {
       html: html
     })
   })
-  //storage.get("channel_" + req.body.id, (err, state) => {
 })
 
 const SEED =
-  "DDVZVZ9QJPUGWDAKGPTEUBOS9AWWWWF99MCKNIXALMKJRBGSQWXOVWRKHSJNOVWBZJRRRWVNXJCKPXPXJ"
+  "DDVZVZ9QJPUGMDAKGPTEUBOS9AWWVWF99MCKNIXALMKJRBGSQMXOVBRKHSJNOVMBZJRRRMVNXJCKPXPXJ"
 
 app.post("/register", (req, res, next) => {
   console.log('/register ', req.body.id)
@@ -130,7 +129,7 @@ app.post("/register", (req, res, next) => {
       flash = {
         index: 0,
         security: 2,
-        deposit: [400, 0],
+        deposit: [req.body.amount, 0],
         outputs: {},
         transfers: [],
         signersCount: 2
@@ -227,29 +226,18 @@ app.post("/address", (req, res, next) => {
 })
 
 app.post("/purchase", (req, res, next) => {
+  console.log('/purchase', req.body.id)
   const bundles = req.body.bundles
-  console.log("Getting Item!")
-  storage.get("item_" + req.body.item, (err, item) => {
-    if (item) {
-      channel.processTransfer(req.body.id, item, bundles, (err, signatures) => {
-        if (err) {
-          return res.status(404).json({ error: "Unknown channel" })
-        }
-        if (!signatures) {
-          return res.status(403).json({ error: "Invalid transfer" })
-        }
-        const key = crypto.randomBytes(50).toString("hex")
-        storage.set(item.id + "_" + key, 1, err => {
-          if (err) {
-            return res.status(500).json({ error: "Internal server error" })
-          }
-          return res.json({ id: item.id, key: key, bundles: signatures })
-        })
-      })
-    } else {
-      return res.status(404).json({ error: "Item not found" })
+  channel.processTransfer(req.body.id, bundles, (err, signatures) => {
+    if (err) {
+      return res.status(404).json({ error: "Unknown channel" })
     }
-  })
+    if (!signatures) {
+      return res.status(403).json({ error: "Invalid transfer" })
+    }
+    const key = crypto.randomBytes(50).toString("hex")
+    return res.json({ bundles: signatures })
+  }) 
 })
 
 app.post("/close", (req, res, next) => {

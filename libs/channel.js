@@ -42,26 +42,13 @@ function getAddress(digests) {
   return multisig.composeAddress(digests)
 }
 
-function processTransfer(id, item, bundles, callback) {
+function processTransfer(id, bundles, callback) {
   storage.get("channel_" + id, (err, channel) => {
     if (err) {
       callback(err)
       return
     }
     try {
-      // const addressesToCheck = transfer
-      //   .getDiff(state.root, state.remainderAddress, state.transfers, bundles)
-      //   .filter(tx => tx.value >= item.value)
-      //   .map(tx => tx.address)
-      // validateOutputs(addressesToCheck, (err, valid) => {
-      //   if (err) {
-      //     callback(err)
-      //     return
-      //   }
-      //   if (!valid) {
-      //     callback(null, false)
-      //     return
-      //   }
       const flashState = channel.flash
       const signatures = transfer.sign(
         flashState.root,
