@@ -60,6 +60,7 @@ function serialWrite(data){
     let wait = setTimeout(() => {
       clearTimeout(wait)
       Serial.write(data, function(err) {
+        console.log('Send BLE', data)
         if (err) {
           reject('Error on write: ', err.message)
         }
