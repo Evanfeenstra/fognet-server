@@ -1,6 +1,6 @@
-# Satoshi Pay Server
+# FogNet server
 
-The backend for the simple proof of concept for utilising IOTA as the medium for a Micropayment solution.
+The backend for a decentralized internet built with bluetooth and IOTA 
 
 ## What's inside
 
@@ -25,6 +25,6 @@ yarn
 yarn start
 ```
 
-A dev server will be served at http://localhost:9000
+A dev server will be served at http://localhost:8081
 
 ## 
